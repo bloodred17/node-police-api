@@ -1,8 +1,8 @@
 const cors = require('cors');
 const express = require('express');
 const app = express();
-// const port = process.env.PORT || 3000;
-const port = 3000;
+const port = process.env.PORT || 3000;
+// const port = 3000;
 const { Gender } = require('./interfaces/gender');
 const { MongoClient, ObjectID } = require('mongodb');
 const dbUrl = 'mongodb://localhost:27017/PoliceDoc';
@@ -59,7 +59,6 @@ MongoClient.connect(dbUrl,{
             }
             console.log(JSON.stringify(result.ops, undefined, 2));
         });
-
         res.send(thief);  
     });
 
@@ -75,8 +74,8 @@ MongoClient.connect(dbUrl,{
     });
 
     app.get('/api/thieves/:id', (req, res) => {
-        const id = req.params.id;
-        db.collection('Thieves').find({id}).toArray().then((docs) => {
+        const _id = req.params.id;
+        db.collection('Thieves').find({_id: new ObjectID(_id)}).toArray().then((docs) => {
             console.log(`Thieves:`);
             res.send(docs);
             console.log(JSON.stringify(docs, undefined, 2));
@@ -86,23 +85,32 @@ MongoClient.connect(dbUrl,{
     });
 
     //Delete request
-    app.delete('/api/thieves/:key/:value', (req, res) => {
-        const key = req.params.key;
-        const value = req.params.value;
-        db.collection('Todos').findOneAndDelete({key: value}).then((doc) => {
+    app.delete('/api/thieves/:id', (req, res) => {
+        const _id = req.params.id;
+        db.collection('Thieves').findOneAndDelete({_id: new ObjectID(_id)}).then((doc) => {
             console.log(doc);
             res.send(doc);
         }, (err) => {
             console.log('Unable to fetch ', err);
         });
+        // db.collection('Thieves').deleteOne({_id: new ObjectID(_id)}).then((result) => {
+        //     console.log(`Specific user deleted: ${(result.result.n)?true:false}`);
+        //     res.send(result);
+        // }, (err) => {
+        //     console.log('Unable to fetch ', err);
+        // });
     });
 
     //Update request
-    app.put('/api/thieves/:id/:key/:value', (req, res) => {
+    app.put('/api/thieves/:id/', (req, res) => {
         const id = req.params.id;
-        const key = req.params.key;
-        const value = req.params.value;
-        db.collection('Thieves').findOneAndUpdate({_id: new ObjectID(id)}, {$set: {key: value}}).then((result) => {
+        const update = {};
+        for(let key in req.body){
+            update[key] = req.body[key];
+        }
+        db.collection('Thieves').findOneAndUpdate({_id: new ObjectID(id)}, {$set: update}, {
+            returnOriginal: false
+        }).then((result) => {
             console.log(result);
             res.send(result);
         }, (err) => {
