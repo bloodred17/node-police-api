@@ -4,7 +4,7 @@
   "description": "REST API for police database. Made for Digiledge",
   "main": "index.js",
   "scripts": {
-    "start": "NODE_ENV=production node index.js",
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node -r dotenv/config index.js",
     "ndev": "nodemon -r dotenv/config index.js"

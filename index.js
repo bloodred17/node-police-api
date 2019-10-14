@@ -65,64 +65,55 @@ MongoClient.connect(dbUrl,{
 
     //Send data on request by fetching from database
     app.get('/api/thieves', (req, res) => {
-        // let thieves = [];
         db.collection('Thieves').find().toArray().then((docs) => {
             console.log(`Thieves:`);
             res.send(docs);
             console.log(JSON.stringify(docs, undefined, 2));
         }, (err) => {
-            console.log("Unable to fetch todos", err);
+            console.log("Unable to fetch ", err);
         });
-        // res.send(thieves);
     });
 
-    // //Add data
-    // db.collection('Thieves').insertOne({
-    //     name: 'Cold Stone',
-    //     id: '246',
-    //     gender: Gender.female, 
-    //     dob: new Date(123456789),
-    //     addresses:[ 
-    //         {
-    //             house: 'Balaji Elegance',
-    //             street: 'Ring road',
-    //             landmark: 'Lake View',
-    //             city: 'Bhubaneshwar',
-    //             pocode: 395001,
-    //             state: 'Odisha',
-    //             country: 'India'
-    //         },
-    //         {   
-    //             house: 'Pragati Nagar',
-    //             street: 'Jakatnaka',
-    //             landmark: 'Lake View',
-    //             city: 'Bangalore',
-    //             pocode: 395007,
-    //             state: 'Karnataka',
-    //             country: 'India'
-    //         },
-    //         {
-    //             house: 'Kings Palace',
-    //             street: 'KIIT Road',
-    //             landmark: 'Campus 6, KIIT',
-    //             city: 'Guwahati',
-    //             pocode: 751024,
-    //             state: 'Assam',
-    //             country: 'India'
-    //         }
-    //     ],
-    //     stateOfConviction: false
-    // },(err, result) => {
-    //     if(err){
-    //         return console.log("Unable to insert todo", err);
-    //     }
-    //     console.log(JSON.stringify(result.ops, undefined, 2));
-    // });
+    app.get('/api/thieves/:id', (req, res) => {
+        const id = req.params.id;
+        db.collection('Thieves').find({id}).toArray().then((docs) => {
+            console.log(`Thieves:`);
+            res.send(docs);
+            console.log(JSON.stringify(docs, undefined, 2));
+        }, (err) => {
+            console.log("Unable to fetch ", err);
+        });
+    });
+
+    //Delete request
+    app.delete('/api/thieves/:key/:value', (req, res) => {
+        const key = req.params.key;
+        const value = req.params.value;
+        db.collection('Todos').findOneAndDelete({key: value}).then((doc) => {
+            console.log(doc);
+            res.send(doc);
+        }, (err) => {
+            console.log('Unable to fetch ', err);
+        });
+    });
+
+    //Update request
+    app.put('/api/thieves/:id/:key/:value', (req, res) => {
+        const id = req.params.id;
+        const key = req.params.key;
+        const value = req.params.value;
+        db.collection('Thieves').findOneAndUpdate({_id: new ObjectID(id)}, {$set: {key: value}}).then((result) => {
+            console.log(result);
+            res.send(result);
+        }, (err) => {
+            console.log("Unable to fetch ", err);
+        });
+    });
+    
 
     //Close the database
     client.close();
 });
-
 
 
 app.listen(port, () => {
